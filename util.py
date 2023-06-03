@@ -1,9 +1,10 @@
-from subprocess import run
+from subprocess import Popen, PIPE
 
 def TestTesseractPath (path):
-    withexe = run(f'"{path}" --version',capture_output=True,shell=True)
-    if (withexe.stderr):
-        withoutexe = run(f'"{path}"\\tesseract.exe --version',capture_output=True,shell=True)
-        if (withoutexe.stderr): return False
-        else: return path + "\\tesseract.exe"
-    else: return True
+    try:
+        process = Popen(f'"{path}" --version', stdout=PIPE)
+        stdout = process.communicate()
+        print(stdout)
+        return stdout != b''
+    except:
+        return False

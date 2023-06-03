@@ -1,29 +1,52 @@
 from pathlib import Path
+from os import environ, getenv, path, makedirs
 
 from tkinter import *
 from tkinter import filedialog
+from tkinter import font as tkFont
+from tkinter import messagebox
 from PIL import Image, ImageTk
 from tkinterdnd2 import DND_FILES, TkinterDnD
 import pytesseract
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\\tesseract.exe"
+import pickle
+import webbrowser
 
-# print("This program requires Tesseract OCR to run if you have not installed")
-# print("please install via this link: https://tesseract-ocr.github.io/tessdoc/Installation.html")
-# tesseractPath = False
+from util import TestTesseractPath
 
-# while (tesseractPath == False):
-#     tesseractPath = input("Please enter Tesseract OCR location: ") or "C:\Program Files\Tesseract-OCR"
-#     tesseractPath = TestTesseractPath(tesseractPath)
+settings_dir = Path(getenv("APPDATA"), "OCR-TOOL-furkansancu")
+if not path.exists(settings_dir): makedirs(settings_dir)
+settings_filepath = settings_dir.joinpath("save.p")
 
-#     if (tesseractPath == False):
-#         print("Tesseract not found")
-# print("Tesseract succesfully found.")
+try: stored_data = pickle.load( open( settings_filepath, "rb" ) )
+except:
+    stored_data = {"tesseract_path": None}
+    f = open(settings_filepath, 'a+')
+    f.close()
+    pickle.dump({"tesseract_path": stored_data["tesseract_path"]}, open( settings_filepath, "wb" ))
+
+def callback(url):
+    webbrowser.open_new(url)
+
+def checkTesseractPath(path):
+    if (path == None): return False
+    else:
+        if (TestTesseractPath(path) != False):
+            setTesseractPath(path)
+            return True
+        else:
+            return False
+
+def setTesseractPath(path):
+    pytesseract.pytesseract.tesseract_cmd = r"" + path
+
+tesseract_found = checkTesseractPath(stored_data["tesseract_path"])
 
 class OCRTOOL:
     def __init__(self, root):
         self.window = root
-        self.SetOnTop()
-        self.SetOnCenter()
+        if (tesseract_found == False): self.SetOCRWindow()
+        self.SetOnTop( self.window )
+        self.SetOnCenter( self.window )
         self.dndIm = Image.open("pictures/dnd.png")
         self.dndImg = ImageTk.PhotoImage(self.dndIm)
         self.lb = Label(self.window, image=self.dndImg, width= 301, cursor="hand2", background="#dce4e2")
@@ -33,23 +56,65 @@ class OCRTOOL:
         self.lb.pack(side= TOP, ipady=16, ipadx=0)
         self.result = Text(self.window, height=14, width=40)
         self.result.pack(side= TOP)
-        
-    def SetOnTop(self):
-        self.window.attributes('-topmost', True)
-        self.window.update()
-        self.window.attributes('-topmost', False)
+            
+    def SetOnTop(self, window):
+        window.attributes('-topmost', True)
+        window.update()
+        window.attributes('-topmost', False)
 
-    def SetOnCenter(self):
-        w = self.window.winfo_width()
-        h = self.window.winfo_height()
-        ws = self.window.winfo_screenwidth()
-        hs = self.window.winfo_screenheight()
+    def SetOnCenter(self, window):
+        w = window.winfo_width()
+        h = window.winfo_height()
+        ws = window.winfo_screenwidth()
+        hs = window.winfo_screenheight()
         x = (ws/2) - (w/2)
         y = (hs/2) - (h/2)
-        self.window.geometry('+%d+%d'%(x, y))
+        window.geometry('+%d+%d'%(x, y))
 
-    def SetOCRPath():
-        pass
+    def SetOCRWindow(self):
+        self.window.withdraw()
+        self.top= Toplevel(self.window)
+        self.top.protocol("WM_DELETE_WINDOW", self.TopLevelClosed)
+        self.top.geometry("444x275")
+        self.top.title("OCR Tool")
+        self.top.iconbitmap("pictures/favicon.ico")
+        self.top['background'] = "#dce4e2"
+        self.top.resizable(False, False)
+        self.top.lbl0 = Label(self.top, text="", background="#dce4e2").pack(side=TOP, pady=8)
+        self.top.lbl1 = Label(self.top, text="This program uses Tesseract OCR and to use that program").pack(side= TOP)
+        self.top.lbl2 = Label(self.top, text="It is essentail to have Tesseract OCR installed on your computer.").pack(side= TOP)
+        self.top.lbl3 = Label(self.top, text="If you have not installed it, please do it via this link:").pack(side= TOP)
+        self.top.lbl4 = Label(self.top, text="https://github.com/UB-Mannheim/tesseract/wiki", foreground="#0000FF", cursor="hand2")
+        self.top.lbl4.bind("<Button-1>", lambda e: callback("https://github.com/UB-Mannheim/tesseract/wiki"))
+        self.top.lbl4.pack(side= TOP, pady=8)
+        self.top.lbl5 = Label(self.top, text="If you already have Tesseract OCR installed on your computer,").pack(side= TOP)
+        self.top.lbl6 = Label(self.top, text="Please locate it:").pack(side= TOP)
+        helv = tkFont.Font(family='Helvetica', size=8, weight='bold')
+        self.top.btn = Button(self.top, text="Locate Tesseract OCR", font=helv, cursor="hand2", command=self.SetOCRPath).pack(side= TOP, pady=16, padx=32, ipadx=8, ipady=4)
+        self.SetOnCenter(self.top)
+        self.SetOnTop(self.top)
+
+    def TopLevelClosed (self):
+        exit(1)
+
+    def SetOCRPath (self):
+        global tesseract_found
+        stored_data["tesseract_path"] = filedialog.askopenfilename(
+            initialdir= environ['PROGRAMFILES']+"\\Tesseract-OCR",
+            title = "Select tesseract.exe",
+            filetypes=(
+                ("tesseract.exe", "tesseract.exe"),
+                ("any file", "*.*")
+            )
+        )
+        if(stored_data["tesseract_path"] != ""):
+            tesseract_found = checkTesseractPath(stored_data["tesseract_path"])
+            if (tesseract_found == False):
+                messagebox.showerror(title="Wrong file", message="Selected file is not running correctly.")
+            else:
+                pickle.dump({"tesseract_path": stored_data["tesseract_path"]}, open( settings_filepath, "wb" ))
+                self.window.deiconify()
+                self.top.withdraw()
 
     def SetFilePath(self):
         self.window.filepath = filedialog.askopenfilename(
@@ -58,8 +123,7 @@ class OCRTOOL:
             filetypes=(
                 ("image files", ("*.jpg", "*.jpeg", "*.png")),
                 ("jpeg files", ("*.jpg", "*.jpeg")),
-                ("png files", "*.png"),
-                ("all files", "*.*")
+                ("png files", "*.png")
             )
         )
         self.FilePathUpdated()
