@@ -1,5 +1,6 @@
 from pathlib import Path
 from os import environ, getenv, path, makedirs
+import sys
 
 from tkinter import *
 from tkinter import filedialog
@@ -41,14 +42,17 @@ def setTesseractPath(path):
 
 tesseract_found = checkTesseractPath(stored_data["tesseract_path"])
 
+def resourcePath(relative_path):
+    base_path = getattr(sys, '_MEIPASS', path.dirname(path.abspath(__file__)))
+    return path.join(base_path, relative_path)
+
 class OCRTOOL:
     def __init__(self, root):
         self.window = root
         if (tesseract_found == False): self.SetOCRWindow()
         self.SetOnTop( self.window )
         self.SetOnCenter( self.window )
-        self.dndIm = Image.open("pictures/dnd.png")
-        self.dndImg = ImageTk.PhotoImage(self.dndIm)
+        self.dndImg = ImageTk.PhotoImage(file=resourcePath("pictures/dnd.png"))
         self.lb = Label(self.window, image=self.dndImg, width= 301, cursor="hand2", background="#dce4e2")
         self.lb.drop_target_register(DND_FILES)
         self.lb.dnd_bind('<<Drop>>', lambda e: self.UpdateFilePath(e.data))
@@ -77,7 +81,6 @@ class OCRTOOL:
         self.top.protocol("WM_DELETE_WINDOW", self.TopLevelClosed)
         self.top.geometry("444x275")
         self.top.title("OCR Tool")
-        self.top.iconbitmap("pictures/favicon.ico")
         self.top['background'] = "#dce4e2"
         self.top.resizable(False, False)
         self.top.lbl0 = Label(self.top, text="", background="#dce4e2").pack(side=TOP, pady=8)
@@ -146,7 +149,6 @@ class OCRTOOL:
 if __name__ == '__main__':
     window = TkinterDnD.Tk()
     window.title("OCR Tool")
-    window.iconbitmap("pictures/favicon.ico")
     window.geometry("333x444")
     window['background'] = "#dce4e2"
     window.resizable(False, False)
