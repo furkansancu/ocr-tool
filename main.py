@@ -50,6 +50,7 @@ class OCRTOOL:
     def __init__(self, root):
         self.window = root
         if (tesseract_found == False): self.SetOCRWindow()
+        self.consistency = IntVar(value=100)
         self.SetOnTop( self.window )
         self.SetOnCenter( self.window )
         self.dndImg = ImageTk.PhotoImage(file=resourcePath("pictures/dnd.png"))
@@ -58,8 +59,10 @@ class OCRTOOL:
         self.lb.dnd_bind('<<Drop>>', lambda e: self.UpdateFilePath(e.data))
         self.lb.bind("<Button-1>", lambda e: self.SetFilePath())
         self.lb.pack(side= TOP, ipady=16, ipadx=0)
+        self.cn = Scale(self.window, from_=20, to=235, orient= HORIZONTAL, width=10, length=301, variable=self.consistency)
+        self.cn.pack(side= TOP, expand= True, pady=6)
         self.result = Text(self.window, height=14, width=40)
-        self.result.pack(side= TOP)
+        self.result.pack(side= TOP, expand=TRUE)
             
     def SetOnTop(self, window):
         window.attributes('-topmost', True)
@@ -141,7 +144,7 @@ class OCRTOOL:
             
     def ScanImage (self):
         image_file = Image.open(self.window.filepath)
-        image_file = image_file.point( lambda p: 255 if p > 100 else 0 )
+        image_file = image_file.point( lambda p: 255 if p > self.consistency.get() else 0 )
         text = pytesseract.image_to_string(image_file)
         self.result.delete("1.0", "end")
         self.result.insert(END, text)
@@ -149,7 +152,7 @@ class OCRTOOL:
 if __name__ == '__main__':
     window = TkinterDnD.Tk()
     window.title("OCR Tool")
-    window.geometry("333x444")
+    window.geometry("333x555")
     window['background'] = "#dce4e2"
     window.resizable(False, False)
     OCRTOOL(window)
