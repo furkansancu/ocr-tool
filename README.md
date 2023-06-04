@@ -1,5 +1,5 @@
 <h1 align="center">OCR-TOOL</h1>
-<div style="text-align:center">
+<div align="center">
     <div style="font-weight:bold">Free, Secure, easy-to-use Optical Character Recognition</div>
     <div style="font-size:0.85em">A straightforward tool for your simplest need.</div>
     <a href="github.com/furkansancu/ocr-tool/releases/latest" style="font-size:0.8em">Download</a>
