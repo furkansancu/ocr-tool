@@ -8,7 +8,7 @@
 ## Getting Started
 #### ⏳ Installation
 
-- Download the <a href="github.com/furkansancu/ocr-tool/releases/latest">lastest version of OCR-TOOL</a>.
+- Download the <a href="https://github.com/furkansancu/ocr-tool/tags">lastest version of OCR-TOOL</a>.
 - Download and install <a href="https://github.com/UB-Mannheim/tesseract/wiki">Tesseract</a>.
 - Open OCR-TOOL
 - Locate the `tesseract.exe` file path from the Tesseract folder.
