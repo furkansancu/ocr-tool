@@ -1,8 +1,7 @@
-import pathlib, os, filetype, requests
+import pathlib, os, filetype, requests, urllib
 import tkinter, customtkinter, tkinterdnd2, pytesseract
 from tkinter import filedialog, messagebox, ttk
 from PIL import Image, ImageTk
-from urllib.parse import urlparse
 from io import BytesIO
 
 import components.util as util
@@ -33,9 +32,6 @@ class NoTesseract:
     def TextFrame(self):
         self.tPanel = tkinter.Frame(self.window, height=341)
         self.tPanel.pack(expand=True, side=tkinter.TOP)
-        self.tPanelImage = ImageTk.PhotoImage(Image.open("src/images/notesseract.jpg"))
-        self.tPanelLabel = ttk.Label(self.window, image=self.tPanelImage)
-        self.tPanelLabel.place(x=0, y=0)
 
     def ButtonsFrame(self):
         self.bFrame = tkinter.Frame(self.window, height=171)
@@ -128,13 +124,22 @@ class OCRTool:
             self.SetResult(self.imageFile)
 
     def DragAndDropImage(self, event):
-        isLink = len(urlparse(event.data).netloc) > 0
+        try:
+            urllib.request.urlopen(event.data).getcode()
+            isLink = True
+        except:
+            isLink = False
+            
         if (isLink):
             response = requests.get(event.data)
             img = Image.open(BytesIO(response.content))
             self.SetResult(img)
         else:
-            localurl = event.data[1:-1]
+            if (event.data[0] == "{" and event.data[-0] == "}"):
+                localurl = event.data[1:-1]
+            else:
+                localurl = event.data
+                
             if filetype.is_image(localurl):
                 self.SetResult(localurl)
             else:
