@@ -1,3 +1,4 @@
+import pathlib, os
 import tkinter, ttkthemes, pytesseract
 from tkinter import filedialog, messagebox, ttk, font
 from PIL import Image, ImageTk
@@ -63,7 +64,6 @@ class NoTesseract:
         OCRTool()
         self.window.withdraw()
 
-
 class OCRTool:
     def __init__ (self) :
         self.window = ttkthemes.ThemedTk(theme="arc")
@@ -82,7 +82,12 @@ class OCRTool:
         self.dndFrame.configure(bg="#fff")
         self.dndFrame.pack_propagate(False)
         self.dndFrame.place(x=8, y=8)
-        self.dndFrameButton = ttk.Button(self.dndFrame, text="Drag and Drop Image or Select File", cursor="hand2")
+        self.dndFrameButton = ttk.Button(
+            self.dndFrame,
+            text="Drag and Drop Image or Select File",
+            cursor="hand2",
+            command=self.SelectImageFile
+        )
         self.dndFrameButton.pack(fill=tkinter.BOTH, expand=True)
 
     def ConsistencyArea(self):
@@ -100,9 +105,26 @@ class OCRTool:
         self.optFrame = tkinter.Frame(self.window, width=360, height=372)
         self.optFrame.place(x=8, y=236)
         self.optFrame.pack_propagate(False)
-        self.output = tkinter.StringVar(value="")
-        self.optText = ttk.Entry(self.optFrame, textvariable=self.output)
+        self.optText = tkinter.Text(self.optFrame)
         self.optText.pack(fill=tkinter.BOTH, expand=True, ipadx=8, ipady=8)
+
+    def SelectImageFile(self):
+        self.imageFile = filedialog.askopenfilename(
+            initialdir= os.path.join(pathlib.Path.home(), "Downloads"),
+            title= "Select tesseract.exe file",
+            filetypes=(
+                ("Image files", ("*.jpg", "*.jpeg", ".png")),
+                ("any file", "*.*")
+            )
+        )
+
+        if self.imageFile != None:
+            self.SetResult(self.imageFile)
+            
+    def SetResult(self, image):
+        result = pytesseract.image_to_string(image=image)
+        self.optText.delete("1.0", "end")
+        self.optText.insert(tkinter.END, result)
 
 if __name__ == '__main__':
     memory_tesseract_path = memory.GetData("tesseract_path")
@@ -224,12 +246,3 @@ if __name__ == '__main__':
 #         text = pytesseract.image_to_string(image_file)
 #         self.result.delete("1.0", "end")
 #         self.result.insert(END, text)
-
-# if __name__ == '__main__':
-#     window = ThemedTk(theme="arc")
-#     window.title("OCR Tool")
-#     window.geometry("333x555")
-#     window['background'] = "#dce4e2"
-#     window.resizable(False, False)
-#     OCRTOOL(window)
-#     window.mainloop()
