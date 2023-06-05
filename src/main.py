@@ -1,4 +1,4 @@
-import pathlib, os, filetype, requests, urllib
+import pathlib, os, filetype, requests, urllib, sys
 import tkinter, customtkinter, tkinterdnd2, pytesseract
 from tkinter import filedialog, messagebox
 from PIL import Image
@@ -20,14 +20,19 @@ customtkinter.set_appearance_mode("dark")
 class NoTesseract:
     def __init__(self):
         self.window = OT_TK()
-        self.window.geometry("376x366")
-        self.window.iconbitmap("src/images/icon.ico")
+        self.GeomertyCentered(376,376)
+        self.window.iconbitmap(utils.ResourcePath("src/images/icon.ico"))
         self.window.resizable(False, False)
         self.window.title("OCR Tool")
-        self.window.configure(bg="white")
         self.TextFrame()
         self.ButtonsFrame()
+        self.window.protocol("WM_DELETE_WINDOW", self.on_close)
         self.window.mainloop()
+
+    def GeomertyCentered(self, w, h):
+        x = (self.window.winfo_screenwidth() - w) / 2
+        y = (self.window.winfo_screenheight() - h) / 2
+        self.window.geometry('%dx%d+%d+%d' % (w, h, x, y))
 
     def TextFrame(self):
         notesseract_text = open("src/texts/notesseract.txt", encoding="utf8").read()
@@ -36,7 +41,7 @@ class NoTesseract:
             188, 142,
             text=notesseract_text,
             fill="white",
-            font="Helvetica 12 bold",
+            font="Helvetica 12",
             justify="center",
             width=344
         )
@@ -68,24 +73,33 @@ class NoTesseract:
                 )
             else:
                 pytesseract.pytesseract.tesseract_cmd = self.tesseractLocation
-                self.Close()
+                self.SwitchToORCTOOL()
 
-    def Close(self):
+    def SwitchToORCTOOL(self):
         self.window.withdraw()
         OCRTool()
+
+    def on_close(self):
+        sys.exit()
 
 class OCRTool:
     def __init__ (self) :
         self.window = OT_TK()
-        self.window.geometry("376x616")
-        self.window.iconbitmap("src/images/icon.ico")
+        self.GeomertyCentered(376, 616)
+        self.window.iconbitmap(utils.ResourcePath("src/images/icon.ico"))
         self.window.resizable(False, False)
         self.window.title("OCR Tool")
         self.window.configure(bg="white")
         self.DnDArea()
         self.ClarityArea()
         self.OutputArea()
+        self.window.protocol("WM_DELETE_WINDOW", self.on_close)
         self.window.mainloop()
+
+    def GeomertyCentered(self, w, h):
+        x = (self.window.winfo_screenwidth() - w) / 2
+        y = (self.window.winfo_screenheight() - h) / 2
+        self.window.geometry('%dx%d+%d+%d' % (w, h, x, y))
 
     def DnDArea(self):
         self.dndFrame = customtkinter.CTkFrame(self.window, width=360, height=180)
@@ -161,6 +175,9 @@ class OCRTool:
         self.optText.delete("1.0", "end")
         self.optText.insert(tkinter.END, result)
 
+    def on_close(self):
+        sys.exit()
+
 if __name__ == '__main__':
     memory_tesseract_path = memory.GetData("tesseract_path")
     tesseract_located = False
@@ -171,9 +188,12 @@ if __name__ == '__main__':
     if not tesseract_located:
         tesseract_located = utils.SearchTesseract(memory)
         memory_tesseract_path = memory.GetData("tesseract_path")
-        
+
     if tesseract_located:
         pytesseract.pytesseract.tesseract_cmd = memory_tesseract_path
         OCRTool()
     else:
         NoTesseract()
+
+## Prevents Pyinstaller to show console on start
+console_block = input()

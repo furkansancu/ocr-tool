@@ -1,4 +1,4 @@
-import os, pathlib
+import os, sys, pathlib
 import subprocess
 import webbrowser
 
@@ -29,3 +29,12 @@ class Util:
     
     def OpenLink(self, link):
         webbrowser.open(link)
+
+    def ResourcePath(self, relative_path):
+        try:
+            base_path = sys._MEIPASS
+            folderpath = os.path.join(base_path, relative_path)
+            return os.path.join(folderpath, relative_path.split("/")[-1])
+        except Exception:
+            base_path = os.path.abspath(".")
+            return os.path.join(base_path, relative_path)
