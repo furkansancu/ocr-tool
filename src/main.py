@@ -194,6 +194,3 @@ if __name__ == '__main__':
         OCRTool()
     else:
         NoTesseract()
-
-## Prevents Pyinstaller to show console on start
-console_block = input()
