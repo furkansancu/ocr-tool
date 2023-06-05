@@ -83,7 +83,7 @@ class OCRTool:
         self.window.title("OCR Tool")
         self.window.configure(bg="white")
         self.DnDArea()
-        self.ConsistencyArea()
+        self.ClarityArea()
         self.OutputArea()
         self.window.mainloop()
 
@@ -101,15 +101,15 @@ class OCRTool:
         self.dndFrameButton.drop_target_register(tkinterdnd2.DND_ALL)
         self.dndFrameButton.dnd_bind("<<Drop>>", self.DragAndDropImage)
 
-    def ConsistencyArea(self):
-        self.consistency = tkinter.IntVar(value=215)
-        self.consFrame = customtkinter.CTkFrame(self.window, width=360, height=32)
-        self.consFrame.place(x=8, y=196)
-        self.consFrameTextFont = customtkinter.CTkFont(family="Ubuntu Medium", size=12, weight="bold")
-        self.consFrameText = customtkinter.CTkLabel(self.consFrame, text="Consistency: ", font=self.consFrameTextFont)
-        self.consFrameText.place(x=8, y=4)
-        self.consFrameSlider = customtkinter.CTkSlider(self.consFrame, from_=50, to=235, variable=self.consistency, width=256)
-        self.consFrameSlider.place(x=96, y=10)
+    def ClarityArea(self):
+        self.clarity = tkinter.IntVar(value=235)
+        self.clarityFrame = customtkinter.CTkFrame(self.window, width=360, height=32)
+        self.clarityFrame.place(x=8, y=196)
+        self.clarityFrameTextFont = customtkinter.CTkFont(family="Ubuntu Medium", size=12, weight="bold")
+        self.clarityFrameText = customtkinter.CTkLabel(self.clarityFrame, text="Text Clarity: ", font=self.clarityFrameTextFont)
+        self.clarityFrameText.place(x=8, y=4)
+        self.clarityFrameSlider = customtkinter.CTkSlider(self.clarityFrame, from_=0, to=255, variable=self.clarity, width=280)
+        self.clarityFrameSlider.place(x=76, y=10)
 
     def OutputArea(self):
         self.optFrame = customtkinter.CTkFrame(self.window, width=360, height=372)
@@ -129,7 +129,7 @@ class OCRTool:
         )
 
         if len(self.imageFile) > 0:
-            self.SetResult(self.imageFile)
+            self.SetResult(Image.open(self.imageFile))
 
     def DragAndDropImage(self, event):
         try:
@@ -143,11 +143,12 @@ class OCRTool:
             img = Image.open(BytesIO(response.content))
             self.SetResult(img)
         else:
-            if (event.data[0] == "{" and event.data[-0] == "}"):
-                event.data = event.data[1:-1]
+            targetpath = event.data
+            if (event.data[0] == "{"):
+                targetpath = targetpath[1:-1]
 
-            if filetype.is_image(event.data):
-                self.SetResult(event.data)
+            if filetype.is_image(targetpath):
+                self.SetResult(Image.open(targetpath))
             else:
                 messagebox.showerror(
                     title="Selected file is not a image file.",
@@ -155,18 +156,18 @@ class OCRTool:
                 )
             
     def SetResult(self, image):
-        image_file = Image.open(image)
-        image_file = image_file.convert('L')
-        image_file = image_file.point( lambda p: 255 if p > self.consistency.get() else 0 )
-        image_file = image_file.convert('1')
+        image_file = image.point( lambda p: 255 if p > self.clarity.get() else 0 )
         result = pytesseract.image_to_string(image=image_file)
         self.optText.delete("1.0", "end")
         self.optText.insert(tkinter.END, result)
 
 if __name__ == '__main__':
     memory_tesseract_path = memory.GetData("tesseract_path")
-    if not memory_tesseract_path == None: tesseract_located = utils.TestTesseract(memory_tesseract_path)
-    else: tesseract_located = False
+    tesseract_located = False
+
+    if not memory_tesseract_path == None:
+        tesseract_located = utils.TestTesseract(memory_tesseract_path)
+
     if not tesseract_located:
         tesseract_located = utils.SearchTesseract(memory)
         memory_tesseract_path = memory.GetData("tesseract_path")
