@@ -1,16 +1,17 @@
 # -*- mode: python ; coding: utf-8 -*-
+from PyInstaller.utils.hooks import collect_data_files, eval_statement
 
+files = [('src/images/icon.ico', './src/images/icon.ico')]
+packages = collect_data_files('tkinterdnd2') + collect_data_files('customtkinter')
 
 block_cipher = None
 
-
 a = Analysis(
-    ['main.py'],
+    ['src/main.py'],
     pathex=[],
     binaries=[],
-    datas=[('icon.ico', '.'), ('pictures/dnd.png', './pictures')],
+    datas=files + packages,
     hiddenimports=[],
-    hookspath=['./hook'],
     hooksconfig={},
     runtime_hooks=[],
     excludes=[],
@@ -19,6 +20,7 @@ a = Analysis(
     cipher=block_cipher,
     noarchive=False,
 )
+
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 
 exe = EXE(
@@ -28,7 +30,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='main',
+    name='OCRTOOL',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -41,5 +43,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['icon.ico'],
+    icon=['src/images/icon.ico'],
 )
