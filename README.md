@@ -4,6 +4,9 @@
     <div style="font-size:0.85em">A straightforward tool for your simplest need.</div>
     <a href="github.com/furkansancu/ocr-tool/releases/latest" style="font-size:0.8em">Download</a>
 </div>
+<br/>
+
+<p align="center"> <img src="./tool.png"> </p>
 
 ## Getting Started
 #### ⏳ Installation
@@ -16,9 +19,8 @@
 
 #### 🖐 How to use ?
 - Area on top is the Drag and Drop area, you can either click to locate your image file or you can drop your image to process.
-- The slider on the center is consistency multiplier:
-    - The more you slide to right means you'll get less accurate results but the possibility of getting wrong output is gets lower.
-    - The more you slide to left means you'll get more accurate results but the possibility of getting wrong output is gets higher.
+- Use the Text Clarity slider to set the clarity of texts in the image, it is useful for crowded images.
+    - Different clarity levels will give you different results. 
 - Bottom area is the result place where the output text of the image appear.
 
 ## About Project
