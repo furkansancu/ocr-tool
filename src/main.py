@@ -1,7 +1,7 @@
 import pathlib, os, filetype, requests, urllib
 import tkinter, customtkinter, tkinterdnd2, pytesseract
-from tkinter import filedialog, messagebox, ttk
-from PIL import Image, ImageTk
+from tkinter import filedialog, messagebox
+from PIL import Image
 from io import BytesIO
 
 import components.util as util
@@ -20,7 +20,7 @@ customtkinter.set_appearance_mode("dark")
 class NoTesseract:
     def __init__(self):
         self.window = OT_TK()
-        self.window.geometry("376x512")
+        self.window.geometry("376x366")
         self.window.iconbitmap("src/images/icon.ico")
         self.window.resizable(False, False)
         self.window.title("OCR Tool")
@@ -30,28 +30,36 @@ class NoTesseract:
         self.window.mainloop()
 
     def TextFrame(self):
-        self.tPanel = tkinter.Frame(self.window, height=341)
-        self.tPanel.pack(expand=True, side=tkinter.TOP)
+        notesseract_text = open("src/texts/notesseract.txt", encoding="utf8").read()
+        self.tPanelText = customtkinter.CTkCanvas(self.window, width=376, height=276, bg="#242424", highlightthickness=0, relief='ridge')
+        self.tPanelText.create_text(
+            188, 142,
+            text=notesseract_text,
+            fill="white",
+            font="Helvetica 12 bold",
+            justify="center",
+            width=344
+        )
+        self.tPanelText.pack(side=tkinter.TOP, fill=tkinter.X)
 
     def ButtonsFrame(self):
-        self.bFrame = tkinter.Frame(self.window, height=171)
-        self.bFrame.configure(bg="white")
-        self.bFrame.pack(side=tkinter.TOP, ipadx=12, ipady=64)
-        self.bFrameDownload = ttk.Button(self.bFrame, text="Download Tesseract OCR", cursor="hand2", command=lambda:utils.OpenLink("https://github.com/UB-Mannheim/tesseract/wiki"))
-        self.bFrameDownload.pack(side=tkinter.LEFT)
-        self.bFrameLocate = ttk.Button(self.bFrame, text="Locate Tesseract OCR", cursor="hand2", command=lambda:self.LocateTesseract())
-        self.bFrameLocate.pack(side=tkinter.RIGHT)
+        self.bFrame = customtkinter.CTkFrame(self.window, height=171, bg_color="#242424")
+        self.bFrame.pack(side=tkinter.TOP, fill=tkinter.X, ipady=16, pady=24)
+        self.bFrameDownload = customtkinter.CTkButton(self.bFrame, text="Download Tesseract OCR", cursor="hand2", command=lambda:utils.OpenLink("https://github.com/UB-Mannheim/tesseract/wiki"))
+        self.bFrameDownload.pack(side=tkinter.LEFT, padx=16)
+        self.bFrameLocate = customtkinter.CTkButton(self.bFrame, text="Locate Tesseract OCR", cursor="hand2", command=lambda:self.LocateTesseract())
+        self.bFrameLocate.pack(side=tkinter.RIGHT, padx=16)
         
     def LocateTesseract(self):
         self.tesseractLocation = filedialog.askopenfilename(
-            initialdir= util.default_tesseract_paths,
+            initialdir= pathlib.Path(os.environ["ProgramFiles"], "Tesseract-OCR\\tesseract.exe"),
             title= "Select tesseract.exe file",
             filetypes=(
                 ("tesseract.exe", "tesseract.exe"),
                 ("any file", "*.*")
             )
         )
-        if (self.tesseractLocation != None):
+        if (len(self.tesseractLocation) > 0):
             isTesseract = utils.TestTesseract(self.tesseractLocation)
             if not isTesseract:
                 messagebox.showerror(
@@ -63,8 +71,8 @@ class NoTesseract:
                 self.Close()
 
     def Close(self):
-        OCRTool()
         self.window.withdraw()
+        OCRTool()
 
 class OCRTool:
     def __init__ (self) :
@@ -100,7 +108,7 @@ class OCRTool:
         self.consFrameTextFont = customtkinter.CTkFont(family="Ubuntu Medium", size=12, weight="bold")
         self.consFrameText = customtkinter.CTkLabel(self.consFrame, text="Consistency: ", font=self.consFrameTextFont)
         self.consFrameText.place(x=8, y=4)
-        self.consFrameSlider = customtkinter.CTkSlider(self.consFrame, from_=50, to=255, variable=self.consistency, width=256)
+        self.consFrameSlider = customtkinter.CTkSlider(self.consFrame, from_=50, to=235, variable=self.consistency, width=256)
         self.consFrameSlider.place(x=96, y=10)
 
     def OutputArea(self):
@@ -136,12 +144,10 @@ class OCRTool:
             self.SetResult(img)
         else:
             if (event.data[0] == "{" and event.data[-0] == "}"):
-                localurl = event.data[1:-1]
-            else:
-                localurl = event.data
-                
-            if filetype.is_image(localurl):
-                self.SetResult(localurl)
+                event.data = event.data[1:-1]
+
+            if filetype.is_image(event.data):
+                self.SetResult(event.data)
             else:
                 messagebox.showerror(
                     title="Selected file is not a image file.",
@@ -164,7 +170,7 @@ if __name__ == '__main__':
     if not tesseract_located:
         tesseract_located = utils.SearchTesseract(memory)
         memory_tesseract_path = memory.GetData("tesseract_path")
-
+        
     if tesseract_located:
         pytesseract.pytesseract.tesseract_cmd = memory_tesseract_path
         OCRTool()
