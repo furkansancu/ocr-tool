@@ -8,9 +8,6 @@ default_tesseract_paths = [
 ]
 
 class Util:
-    def __init__(self):
-        pass
-    
     def TestTesseract(self, path):
         try:
             process = subprocess.Popen(f'"{path}" --version', stdout=subprocess.PIPE)
@@ -29,12 +26,6 @@ class Util:
     
     def OpenLink(self, link):
         webbrowser.open(link)
-
-    def ResourcePath(self, relative_path):
-        try:
-            base_path = sys._MEIPASS
-            folderpath = os.path.join(base_path, relative_path)
-            return os.path.join(folderpath, relative_path.split("/")[-1])
-        except Exception:
-            base_path = os.path.abspath(".")
-            return os.path.join(base_path, relative_path)
+        
+    def GetNoTesseractText(self):
+        return "This program uses Tesseract OCR for character recognition.\nHaving Tesseract OCR installed on your computer is vital to run this program.\nIf you have not installed please click “Download Tesseract OCR” button.\nIf you already had installed it, please locate it via clicking the “Locate Tesseract OCR” button."

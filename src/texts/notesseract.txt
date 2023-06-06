@@ -1,7 +1,0 @@
-This program uses Tesseract OCR for character recognition.
-
-Having Tesseract OCR installed on your computer is vital to run this program.
-
-If you have not installed please click “Download Tesseract OCR” button.
-
-If you already had installed it, please locate it via clicking the “Locate Tesseract OCR” button.

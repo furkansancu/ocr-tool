@@ -1,7 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 from PyInstaller.utils.hooks import collect_data_files, eval_statement
 
-files = [('src/images/icon.ico', './src/images/icon.ico')]
+files = [('icon.ico', '.')]
 packages = collect_data_files('tkinterdnd2') + collect_data_files('customtkinter')
 
 block_cipher = None
@@ -43,5 +43,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['src/images/icon.ico'],
+    icon=['icon.ico'],
 )

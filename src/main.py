@@ -21,7 +21,6 @@ class NoTesseract:
     def __init__(self):
         self.window = OT_TK()
         self.GeomertyCentered(376,376)
-        self.window.iconbitmap(utils.ResourcePath("src/images/icon.ico"))
         self.window.resizable(False, False)
         self.window.title("OCR Tool")
         self.TextFrame()
@@ -35,7 +34,7 @@ class NoTesseract:
         self.window.geometry('%dx%d+%d+%d' % (w, h, x, y))
 
     def TextFrame(self):
-        notesseract_text = open("src/texts/notesseract.txt", encoding="utf8").read()
+        notesseract_text = utils.GetNoTesseractText()
         self.tPanelText = customtkinter.CTkCanvas(self.window, width=376, height=276, bg="#242424", highlightthickness=0, relief='ridge')
         self.tPanelText.create_text(
             188, 142,
@@ -86,7 +85,6 @@ class OCRTool:
     def __init__ (self) :
         self.window = OT_TK()
         self.GeomertyCentered(376, 616)
-        self.window.iconbitmap(utils.ResourcePath("src/images/icon.ico"))
         self.window.resizable(False, False)
         self.window.title("OCR Tool")
         self.window.configure(bg="white")
@@ -135,7 +133,7 @@ class OCRTool:
     def SelectImageFile(self):
         self.imageFile = filedialog.askopenfilename(
             initialdir= os.path.join(pathlib.Path.home(), "Downloads"),
-            title= "Select tesseract.exe file",
+            title= "Select Image",
             filetypes=(
                 ("Image files", ("*.jpg", "*.jpeg", ".png")),
                 ("any file", "*.*")
